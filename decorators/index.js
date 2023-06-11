@@ -1,7 +1,7 @@
-const ctrlWrapper = require("./ctrlWrapper");
-const validateBody = require("./validateBody");
+const ctrlWrapper = require("../helpers/ctrlWrapper");
+
 
 module.exports = {
     ctrlWrapper,
-    validateBody,
+   
 }
