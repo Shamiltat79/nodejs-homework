@@ -1,7 +1,7 @@
 const {Schema, model} = require("mongoose");
 const Joi = require("joi");
-// const {handleMongooseError} = require("../middlewares/handleMogooseError");
-const {handleMongooseError} = require("../middlewares");
+
+// const {handleMongooseError} = require("../middlewares");
 
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -22,6 +22,11 @@ password: {
     minlength: 6,
     required: true,
 },
+subscription: {
+    type: String,
+    enum: ["starter", "pro", "business"],
+    default: "starter"
+  },
 token: {
     type: String,
     default: ""
@@ -29,9 +34,14 @@ token: {
 
 }, {versionKey: false, timestamps: true});
 
-console.log(handleMongooseError);
 
-userSchema.post("save", handleMongooseError
+
+userSchema.post("save", function handleMongooseError(error, data, next){
+    const {name, code} = error;
+    error.status = (name === "MongoServerError" && code === 11000) ? 409 : 400;
+    
+    next();
+}
 
 );
 

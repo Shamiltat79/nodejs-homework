@@ -13,6 +13,10 @@ const contactSchema = new Schema({
             match: /^\(\d\d\d\) \d\d\d-\d\d-\d\d$/ },
     favorite:{type: Boolean,
          default: false},
+    owner: {
+          type: Schema.Types.ObjectId,
+          ref: 'user',
+        }     
 }, {versionKey: false, timestamps: true} );
 
 contactSchema.post("save", handleMongooseError );
