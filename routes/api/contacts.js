@@ -6,19 +6,19 @@ const router = express.Router();
 
 
 
+router.use(authenticate);
 
+router.get("/", ctrl.getContacts);
 
-router.get("/", authenticate, ctrl.getContacts);
+router.get("/:id", isValidId, ctrl.getContactById)
 
-router.get("/:id", authenticate, isValidId, ctrl.getContactById)
+router.post("/",  validateBody(schemas.contactsAddSchema), ctrl.addContact);
 
-router.post("/", authenticate, validateBody(schemas.contactsAddSchema), ctrl.addContact);
+router.put("/:id", isValidId, validateBody(schemas.contactsAddSchema), ctrl.updateContact);
 
-router.put("/:id", authenticate, isValidId, validateBody(schemas.contactsAddSchema), ctrl.updateContact);
+router.patch("/:id", isValidId, validateBody(schemas.updateFavoriteSchema), ctrl.updateFavorite);
 
-router.patch("/:id", authenticate, isValidId, validateBody(schemas.updateFavoriteSchema), ctrl.updateFavorite);
-
-router.delete("/:id", authenticate, isValidId, ctrl.removeContact);
+router.delete("/:id", isValidId, ctrl.removeContact);
 
 
 module.exports = router;
