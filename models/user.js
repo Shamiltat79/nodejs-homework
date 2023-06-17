@@ -1,5 +1,6 @@
 const {Schema, model} = require("mongoose");
 const Joi = require("joi");
+// const {handleMongooseError} = require("../middlewares/handleMogooseError");
 const {handleMongooseError} = require("../middlewares");
 
 const emailRegexp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -28,7 +29,12 @@ token: {
 
 }, {versionKey: false, timestamps: true});
 
-userSchema.post("save", handleMongooseError);
+console.log(handleMongooseError);
+
+userSchema.post("save", handleMongooseError
+
+);
+
 
 const registerSchema = Joi.object({
     name: Joi.string().required(),
