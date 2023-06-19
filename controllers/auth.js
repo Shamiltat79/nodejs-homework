@@ -1,11 +1,17 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 
+// const fs = require('fs/promises');
+// const path = require('path');
 const {User} = require("../models/user");
 
 const {ctrlWrapper, HttpError} = require("../helpers");
 
 const {SECRET_KEY} = process.env;
+
+
+
 
 const register = async (req, res) => {
     const {email, password} = req.body;
@@ -14,9 +20,11 @@ const register = async (req, res) => {
        throw HttpError (409, "Email already in use");
     }
 
-const hashPassword = await bcrypt.hash(password, 10)
+const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({...req.body, password: hashPassword});
+const avatarURL = gravatar.url(email);
+
+    const newUser = await User.create({...req.body, password: hashPassword, avatarURL});
 
     res.status(201).json({    
         email: newUser.email,
@@ -24,6 +32,15 @@ const hashPassword = await bcrypt.hash(password, 10)
     })
 
 }
+
+// const addAvatar = async (req, res, next) => {
+//     const {path: oldPath, filename} = req.file;
+//     const newPath = path.join(avatarsPath, filename);
+//     await fs.rename(oldPath, newPath);
+//     const avatar = path.join("avatars", filename);
+//     res.json({avatar});
+
+// }
 
 const login = async (req, res) => {
     const {email, password} = req.body;
