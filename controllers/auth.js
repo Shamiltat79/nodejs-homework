@@ -1,11 +1,18 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
+const Jimp = require("jimp");
 
+const fs = require('fs/promises');
+const path = require('path');
 const {User} = require("../models/user");
 
 const {ctrlWrapper, HttpError} = require("../helpers");
 
 const {SECRET_KEY} = process.env;
+const avatarsDir = path.join(__dirname, "../", "public", "avatars");
+
+
 
 const register = async (req, res) => {
     const {email, password} = req.body;
@@ -14,9 +21,11 @@ const register = async (req, res) => {
        throw HttpError (409, "Email already in use");
     }
 
-const hashPassword = await bcrypt.hash(password, 10)
+const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({...req.body, password: hashPassword});
+const avatarURL = gravatar.url(email);
+
+    const newUser = await User.create({...req.body, password: hashPassword, avatarURL});
 
     res.status(201).json({    
         email: newUser.email,
@@ -24,6 +33,15 @@ const hashPassword = await bcrypt.hash(password, 10)
     })
 
 }
+
+// const addAvatar = async (req, res, next) => {
+//     const {path: oldPath, filename} = req.file;
+//     const newPath = path.join(avatarsPath, filename);
+//     await fs.rename(oldPath, newPath);
+//     const avatar = path.join("avatars", filename);
+//     res.json({avatar});
+
+// }
 
 const login = async (req, res) => {
     const {email, password} = req.body;
@@ -77,9 +95,35 @@ const logout = async (req, res) => {
         message: "Logout success"
     })
 };
+
+const updateAvatar = async (req, res) => {
+    const {_id} = req.user;
+    const {path: tempUpload, originalname} = req.file;
+
+    const filename = `${_id}_${originalname}`;
+    const resultUpload = path.join(avatarsDir, filename);
+    await fs.rename(tempUpload, resultUpload);
+    
+    const avatarURL = path.join("public", "avatars", filename);
+    const resizedAvatar =  Jimp.read(resultUpload)
+    .then(img => {return img.resize(250, 250).write(avatarURL);
+    })
+    .catch(error => {
+        throw new HttpError(404, `${error.message}`);
+    });
+    
+    
+   
+    await User.findByIdAndUpdate(_id, resizedAvatar);
+
+    res.json({
+        avatarURL,
+    })
+};
 module.exports = {
     register: ctrlWrapper(register),
     login: ctrlWrapper(login),
     getCurrent: ctrlWrapper(getCurrent),
     logout: ctrlWrapper(logout),
+    updateAvatar: ctrlWrapper(updateAvatar),
 }
