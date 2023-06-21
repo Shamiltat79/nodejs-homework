@@ -31,6 +31,13 @@ token: {
     type: String,
     default: ""
 },
+verify: {
+    type: Boolean,
+    default: false,
+},
+verificationCode: {
+    type: String,
+},
 
 avatarURL: {
     type: String,
@@ -62,10 +69,14 @@ const loginSchema = Joi.object({
     password: Joi.string().required().min(6),
 });
 
+const userEmailSchema = Joi.object({
+    email: Joi.string().pattern(emailRegexp).required(),
+});
+
 const schemas = {
      registerSchema,
      loginSchema,
-    
+    userEmailSchema
 };
 
 const User = model('user', userSchema);
